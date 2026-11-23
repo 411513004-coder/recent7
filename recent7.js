@@ -1,9 +1,46 @@
-// recent7.js：照 rules.md 寫的版本
-// 輸入：records＝一串紀錄，每筆像 { log_date: '2026-11-23', minutes: 30 }（minutes 可能是 null）
-//       today＝今天的日期，例如 '2026-11-23'
-// 輸出：{ minutes: 總共幾分鐘, count: 幾筆 }
-// 格式說明在 README.md；要怎麼算看 rules.md。
+// recent7.js：照規則寫的版本。
+// 函式名稱叫 recent7，輸入、輸出的格式見 README.md。
 
 function recent7(records, today) {
-  throw new Error('還沒做');
+  if (!records || !Array.isArray(records) || records.length === 0) {
+    return { minutes: 0, count: 0 };
+  }
+
+  const todayDate = new Date(today + 'T00:00:00Z');
+  const pastDate = new Date(todayDate);
+  pastDate.setUTCDate(todayDate.getUTCDate() - 6);
+
+  const minDateStr = pastDate.toISOString().slice(0, 10);
+  const maxDateStr = today;
+
+  let totalMinutes = 0;
+  let totalCount = 0;
+
+  for (const record of records) {
+    if (!record || !record.log_date) continue;
+    const d = record.log_date;
+
+    // 規則 2：未來的日期（比 today 晚）一律不計入
+    if (d > maxDateStr) continue;
+
+    // 規則 1：範圍包含今天往前推 6 天至今天共 7 天，太早的不算
+    if (d < minDateStr) continue;
+
+    // 規則 3：沒有填分鐘數（minutes 為 null 或未填）的紀錄，算 1 筆，0 分鐘
+    if (record.minutes === null || record.minutes === undefined) {
+      totalCount++;
+      continue;
+    }
+
+    // 規則 5：有填寫分鐘數但少於 10 分鐘（0 < minutes < 10）的紀錄太短了，完全不計入
+    if (record.minutes > 0 && record.minutes < 10) {
+      continue;
+    }
+
+    // 正常計入
+    totalCount++;
+    totalMinutes += record.minutes;
+  }
+
+  return { minutes: totalMinutes, count: totalCount };
 }
