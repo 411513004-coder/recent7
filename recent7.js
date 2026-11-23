@@ -3,7 +3,7 @@
 
 function recent7(records, today) {
   if (!records || !Array.isArray(records) || records.length === 0) {
-    return { minutes: 0, count: 0 };
+    return { minutes: 0, count: 0, days: 0 };
   }
 
   const todayDate = new Date(today + 'T00:00:00Z');
@@ -15,6 +15,7 @@ function recent7(records, today) {
 
   let totalMinutes = 0;
   let totalCount = 0;
+  const recordedDays = new Set();
 
   for (const record of records) {
     if (!record || !record.log_date) continue;
@@ -29,6 +30,7 @@ function recent7(records, today) {
     // 規則 3：沒有填分鐘數（minutes 為 null 或未填）的紀錄，算 1 筆，0 分鐘
     if (record.minutes === null || record.minutes === undefined) {
       totalCount++;
+      recordedDays.add(d);
       continue;
     }
 
@@ -40,7 +42,8 @@ function recent7(records, today) {
     // 正常計入
     totalCount++;
     totalMinutes += record.minutes;
+    recordedDays.add(d);
   }
 
-  return { minutes: totalMinutes, count: totalCount };
+  return { minutes: totalMinutes, count: totalCount, days: recordedDays.size };
 }
