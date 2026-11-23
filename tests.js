@@ -66,3 +66,21 @@ addCase({
   ],
   expect: { minutes: 50, count: 3 }
 });
+
+addCase({
+  name: '規則 6：同一天多筆只算 1 天，不同天累加天數',
+  today: '2026-11-23',
+  records: [
+    { log_date: '2026-11-23', minutes: 30 },
+    { log_date: '2026-11-23', minutes: 40 },
+    { log_date: '2026-11-20', minutes: 20 }
+  ],
+  expect: { minutes: 90, count: 3, days: 2 }
+});
+
+addCase({
+  name: '規則 6：空紀錄時 days 回傳 0',
+  today: '2026-11-23',
+  records: [],
+  expect: { minutes: 0, count: 0, days: 0 }
+});
